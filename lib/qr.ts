@@ -19,7 +19,7 @@ const BITMAP_OPTIONS: QROptions = {
   //customize: null,
   //color: null,
   //background: null,
-  transparent: false // default is false for bitmap to keep default behaviour
+  transparent: false, // default is false for bitmap to keep default behaviour
 };
 
 const VECTOR_OPTIONS: QROptions = {
@@ -30,12 +30,12 @@ const VECTOR_OPTIONS: QROptions = {
   size: 0,
   color: null,
   background: null,
-  transparent: true // default is true for vector to keep default behaviour
+  transparent: true, // default is true for vector to keep default behaviour
 };
 
 function get_options(
   options: ECLevel | QROptions,
-  force_type?: string
+  force_type?: string,
 ): QROptions {
   var opts: QROptions = { ...VECTOR_OPTIONS };
 
@@ -45,16 +45,16 @@ function get_options(
     opts = {
       ...opts,
       ...options,
-      type: options.type.toLowerCase()
-    } ;
+      type: options.type.toLowerCase(),
+    };
   }
   if (force_type) opts.type = force_type.toLowerCase();
 
-  if (opts.type == 'png' || force_type == 'png'){
+  if (opts.type == "png" || force_type == "png") {
     opts = {
       ...BITMAP_OPTIONS,
       ...opts,
-    }
+    };
     opts.size = opts.size || 5;
     opts.margin = opts.margin || 1;
   }
@@ -62,48 +62,61 @@ function get_options(
   return opts as QROptions;
 }
 
-// function qr_image(text, options) {
-//     options = get_options(options);
+export async function qrImage(
+  text: QRDataType,
+  options: ECLevel | QROptions,
+): Promise<string | Uint8Array> {
 
-//     var matrix = QR(text, options.ec_level, options.parse_url);
-//     var stream = new Readable();
-//     stream._read = fn_noop;
+  var bytes : Uint8Array | null = null;
+  var outStr: string[] = [];
 
-//     var fore = colorParser(options.color, options.type);
-//     var back = colorParser(options.background, options.type);
+  var opts = get_options(options);
 
-//     switch (options.type) {
-//     case 'svg':
-//     case 'pdf':
-//     case 'eps':
-//         process.nextTick(function() {
-//             vector[options.type](matrix, stream, options.margin, options.size, fore, back, options.transparent);
-//         });
-//         break;
-//     case 'svgpath':
-//         // deprecated, use svg_object method
-//         process.nextTick(function() {
-//             var obj = vector.svg_object(matrix, options.margin, options.size);
-//             stream.push(obj.path);
-//             stream.push(null);
-//         });
-//         break;
-// //    case 'png':
-//     default:
-//         throw new Error(`Invalid QR image type (${options.type}) requested`);
-//         // process.nextTick(function() {
-//         //     var bitmap = png.bitmap(matrix, options.size, options.margin);
-//         //     if (options.customize) {
-//         //         options.customize(bitmap);
-//         //     }
-//         //     png.png(bitmap, stream, fore, back, options.transparent);
-//         // });
-//     }
+  var matrix = QR(text, opts.ec_level, opts.parse_url);
 
-//     return stream;
-// }
+  var fore = parseColor(opts.color, opts.type);
+  var back = parseColor(opts.background, opts.type);
 
-export function imageSync(text: QRDataType, options: ECLevel | QROptions) : string | Uint8Array {
+  switch (opts.type) {
+    case "svg":
+    case "pdf":
+    case "eps":
+      outStr = await Promise.resolve().then( function () {
+        //@ts-ignore
+        vector[opts.type](
+          matrix,
+          outStr,
+          opts.margin,
+          opts.size,
+          fore,
+          back,
+          opts.transparent,
+        );
+        return outStr;
+      });
+      break;
+    case "png":
+      bytes = await Promise.resolve().then( function () {
+        //@ts-ignore
+        var bitmap = png.bitmap(matrix, opts.size, opts.margin);
+        if (opts.customize) {
+          opts.customize(bitmap);
+        }
+        //@ts-ignore
+        return png.png(bitmap, fore, back, opts.transparent);
+      });
+      break;
+    default:
+      throw new Error(`Invalid QR image type (${opts.type}) requested`);
+  }
+
+  return  bytes || outStr.join("");
+}
+
+export function imageSync(
+  text: QRDataType,
+  options: ECLevel | QROptions,
+): string | Uint8Array {
   let opts = get_options(options);
 
   var matrix = QR(text, opts.ec_level, opts.parse_url);
@@ -123,20 +136,20 @@ export function imageSync(text: QRDataType, options: ECLevel | QROptions) : stri
         opts.size,
         fore,
         back,
-        opts.transparent
+        opts.transparent,
       );
       // result = outStr.join("");
       return outStr.join("");
       break;
-    case 'png': 
+    case "png":
       //@ts-ignore
-    var bitmap = png.bitmap(matrix, opts.size, opts.margin);
-    if (opts.customize) {
+      var bitmap = png.bitmap(matrix, opts.size, opts.margin);
+      if (opts.customize) {
         opts.customize(bitmap);
-    }
-    //@ts-ignore
-    return png.png(bitmap, fore, back, options.transparent);
-    break;
+      }
+      //@ts-ignore
+      return png.png(bitmap, fore, back, opts.transparent);
+      break;
     default:
       throw new Error(`Invalid QR image type (${opts.type}) requested`);
   }
