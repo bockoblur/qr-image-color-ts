@@ -10,59 +10,9 @@ import { parseColor } from "./parsecolor.ts";
 
 import { QRDataType, QROptions } from "./qr-base.ts";
 
-const BITMAP_OPTIONS: QROptions = {
-  type: "png",
-  parse_url: false,
-  ec_level: "M",
-  size: 5,
-  margin: 4,
-  //customize: null,
-  //color: null,
-  //background: null,
-  transparent: false, // default is false for bitmap to keep default behaviour
-};
+import {get_options, DEFAULT_TYPE} from './get-options.ts';
 
-const VECTOR_OPTIONS: QROptions = {
-  type: "svg",
-  parse_url: false,
-  ec_level: "M",
-  margin: 1,
-  size: 0,
-  color: null,
-  background: null,
-  transparent: true, // default is true for vector to keep default behaviour
-};
-
-function get_options(
-  options: ECLevel | QROptions,
-  force_type?: string,
-): QROptions {
-  var opts: QROptions = { ...VECTOR_OPTIONS };
-
-  if (typeof options === "string") {
-    opts.ec_level = options;
-  } else {
-    opts = {
-      ...opts,
-      ...options,
-      type: options.type.toLowerCase(),
-    };
-  }
-  if (force_type) opts.type = force_type.toLowerCase();
-
-  if (opts.type == "png" || force_type == "png") {
-    opts = {
-      ...BITMAP_OPTIONS,
-      ...opts,
-    };
-    opts.size = opts.size || 5;
-    opts.margin = opts.margin || 1;
-  }
-
-  return opts as QROptions;
-}
-
-export async function qrImage(
+async function qr_image(
   text: QRDataType,
   options: ECLevel | QROptions,
 ): Promise<string | Uint8Array> {
@@ -113,7 +63,7 @@ export async function qrImage(
   return  bytes || outStr.join("");
 }
 
-export function imageSync(
+function qr_image_sync(
   text: QRDataType,
   options: ECLevel | QROptions,
 ): string | Uint8Array {
@@ -138,7 +88,6 @@ export function imageSync(
         back,
         opts.transparent,
       );
-      // result = outStr.join("");
       return outStr.join("");
       break;
     case "png":
@@ -155,16 +104,16 @@ export function imageSync(
   }
 }
 
-export function svgObject(text: QRDataType, options: ECLevel | QROptions) {
+function svg_object(text: QRDataType, options: ECLevel | QROptions) {
   options = get_options(options, "svg");
 
   var matrix = QR(text, options.ec_level);
   return vector.SVG_object(matrix, options.margin);
 }
 
-// module.exports = {
-//     matrix: QR,
-//     image: qr_image,
-//     imageSync: qr_image_sync,
-//     svgObject: svg_object
-// };
+export {
+  svg_object as svgObject,
+  qr_image_sync as imageSync,
+  QR as matrix,
+  qr_image as image,
+};

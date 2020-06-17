@@ -1,3 +1,5 @@
+import { DEFAULT_TYPE } from "./get-options.ts";
+
 // Source: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value
 var cssTable = {
   black: "#000000",
@@ -233,7 +235,7 @@ function to01(a : number[]) : number[]{
   return a;
 }
 
-export function parseColor(color: any, type: string) {
+export function parseColor(color: any, type: string  = DEFAULT_TYPE) {
   if (!color) return undefined;
   if (typeof color === "string") {
     // hex (or named) color passed

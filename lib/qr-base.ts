@@ -9,7 +9,7 @@ export type QRColor = string | number[] | number| null;
 export type QRDataType = string | number | Uint8Array;
 
 export interface QROptions {
-  type: string;
+  type?: string;
   parse_url?: boolean;
   ec_level?: ECLevel;
   size?: number;
