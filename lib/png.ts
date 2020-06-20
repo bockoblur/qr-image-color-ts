@@ -1,8 +1,5 @@
 //var zlib = require('zlib');
-import {deflate as pakoDeflate} from "https://raw.githubusercontent.com/Denocord/pako/master/mod.js";
-
-//import { pacoDeflate } from '../deps.ts';
-
+import {deflate} from '../deps.ts';
 import {crc32} from './crc32.ts';
 
 function writeUInt32BE(buf : Uint8Array, value: number, byteOffset: number){
@@ -94,7 +91,7 @@ export function png(bitmap:BitmapDef, foreColor:Uint8Array, backColor:Uint8Array
     // ]);
 
 
-    var deflatedData = <Uint8Array>pakoDeflate(bitmap.data, {level: 9});
+    var deflatedData = <Uint8Array>deflate(bitmap.data, {level: 9});
 
     var IDAT = concatBuff([
         PNG_IDAT, 
