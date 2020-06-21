@@ -231,7 +231,7 @@ function hex2rgb(c: string) {
 
 function to01(a : number[]) : number[]{
   for(let i=0;i<a.length;i++)
-    a[i] = 1-a[i]/255;
+    a[i] = Math.round(a[i]/255*100)/100;
   return a;
 }
 
@@ -241,11 +241,9 @@ export function parseColor(color: any, type: string  = DEFAULT_TYPE) {
     // hex (or named) color passed
     if (type === "svg") return color;
     else if (type === "png")
-      //@ts-ignore
-      return hex2rgb(color).raw;
+      return hex2rgb(color)!.raw;
     else {
-      //@ts-ignore
-      var s = hex2rgb(color).rgbArr;
+      var s = hex2rgb(color)!.rgbArr;
       s = to01(s); // convert to 0..1 values
       return s ? s.join(" ") + " rg" : undefined;
     }
