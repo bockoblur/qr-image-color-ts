@@ -1,9 +1,9 @@
-qr-image-color-deno
+qr-image-color-ts
 ========
 
-Deno™ port of qr-image-color, which is a fork of awesome [alexeyten's](https://github.com/alexeyten/qr-image) qr-image generator.
+TypeScript (and Deno™) port of qr-image-color, which is a fork of awesome [alexeyten's](https://github.com/alexeyten/qr-image) qr-image generator.
 
-This fork adds support for custom colors and non-transparent backgrounds in `SVG`, `EPS` and `PDF` files, as well as custom colors and transparent backgrounds in `PNG` files.
+Adds support for custom colors and non-transparent backgrounds in `SVG`, `EPS` and `PDF` files, as well as custom colors and transparent backgrounds in `PNG` files.
 
 For complete description of qr-image please visit [original repo](https://github.com/alexeyten/qr-image).
 
@@ -26,7 +26,7 @@ Deno import
 -----
 
 ```TypeScript
-import {imageSync} from './mod.ts';
+import {imageSync, image, ... } from './mod.ts';
 ```
 
 Color Data Types
